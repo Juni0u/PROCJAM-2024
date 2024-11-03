@@ -10,7 +10,13 @@ class Game():
 
     def start_game(self):
         while not self.exit:
-            self.exit = self.check_closed_window()
+            for event in pygame.event.get(): 
+                if event.type == pygame.QUIT: 
+                    self.exit=True
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.toogle_pause()
+
 
             self.update()
             self.before_draw()
@@ -24,29 +30,31 @@ class Game():
         self.mouse_pos = self.get_mouse_position()
         self.manage_mouse_clicks()
 
+
         #plants
-        if self.plants_list:
-            for plant in self.plants_list:
-                death, new_plants = plant.update(self.plants_list)
-                if death: marked_for_death.append(plant)
+        if not self.pause:
+            if self.plants_list:
+                for plant in self.plants_list:
+                    death, new_plants = plant.update(self.plants_list)
+                    if death: marked_for_death.append(plant)
 
-        if new_plants:
-            for x,y,gene in new_plants:
-                self.add_plant_to_position(x,y,gene)
+            if new_plants:
+                for x,y,gene in new_plants:
+                    self.add_plant_to_position(x,y,gene)
 
-        if marked_for_death:
-            for plant in marked_for_death:
-                self.plants_list.remove(plant)
+            if marked_for_death:
+                for plant in marked_for_death:
+                    self.plants_list.remove(plant)
 
     def draw (self):
         #plants
         for plant in self.plants_list:
             self.canvas = plant.draw(self.canvas)
 
-        # font = pygame.font.Font(None,15)
-        # plants_n = font.render(f"{len(self.plants_list)}",True, (255,0,255))
-        # self.canvas.blit(plants_n,(5,5))
-
+        if self.pause:
+            font = pygame.font.Font(None,12)
+            pause_text = font.render(f"GAME PAUSED",True, (255,255,255))
+            self.canvas.blit(pause_text,self.pause_pos)
 
 ##############################################
 ##############################################
@@ -72,6 +80,12 @@ class Game():
         canvas_y = max(0, min(self.resolution[1] - 1, canvas_y))
         return canvas_x,canvas_y
     
+    def toogle_pause(self):
+        if self.pause:
+            self.pause=False
+        else:
+            self.pause=True
+    
     def manage_mouse_clicks(self):
         left, scroll, right = pygame.mouse.get_pressed()
         if left: 
@@ -83,12 +97,6 @@ class Game():
         #         self.plants_list.remove(plant)
         #         break
         self.plants_list.append(RGPlant(x,y,gene))
-
-    def check_closed_window(self) -> bool:
-        for event in pygame.event.get(): 
-            if event.type == pygame.QUIT: 
-                return True
-        return False
 
     def configuration_start(self, window_title):
         pygame.init()
@@ -102,8 +110,10 @@ class Game():
         self.y_screen_scale = self.resolution[1] / self.screen_size[1]
         pygame.display.set_caption(window_title)
         self.exit = False
+        self.pause = False
         self.mouse_pos = (0,0)
         self.clock = pygame.time.Clock()
+        self.pause_pos = [3,0]
         
 def main():
     A = Game()
