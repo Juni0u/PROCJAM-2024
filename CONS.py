@@ -1,10 +1,11 @@
 SCREEN_DATA = {
     "RESOLUTION" : (64,64),
-    "SCREEN_SIZE" : (511,511)
+    "SCREEN_SIZE" : (511,511),
+    "FPS_CAP" : 60
 }
 
 PLANTS_CONS = {
-    "MITOSIS_CHANCE" : 0.8,
-    "DEATH_CHANCE" : 0.015,
-    "MUTATION_CHANCE" : 0.1,
+    "MITOSIS_CHANCE" : 0.4,
+    "DEATH_CHANCE" : 0.010,
+    "MUTATION_CHANCE" : 0.9,
 }

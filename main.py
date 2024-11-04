@@ -1,11 +1,13 @@
 import pygame, random
 from CONS import SCREEN_DATA
 from rgplant import RGPlant
+from textbox import TextBox
 
 class Game():
     def __init__(self,window_title:str="RGPlants"):
-        self.configuration_start(window_title=window_title)
         self.plants_list = []
+        self.textbox_list = []
+        self.configuration_start(window_title=window_title)
         #self.plants_list.append(RGPlant(63,63,(255,0,0)))
 
     def start_game(self):
@@ -56,6 +58,9 @@ class Game():
             pause_text = font.render(f"GAME PAUSED",True, (255,255,255))
             self.canvas.blit(pause_text,self.pause_pos)
 
+            #Text Boxes
+            for textbox in self.textbox_list:
+                self.canvas = textbox.draw(self.canvas)
 ##############################################
 ##############################################
 ##############################################
@@ -70,7 +75,7 @@ class Game():
         scaled_canvas = pygame.transform.scale(self.canvas, self.screen_size)
         self.screen.blit(scaled_canvas, (0, 0))  # Draw scaled canvas on the screen
         pygame.display.update() 
-        self.clock.tick(120)
+        self.clock.tick(self.fps_cap) #TODO: Option to change this value
 
     def get_mouse_position(self) -> tuple:
         mouse_pos = pygame.mouse.get_pos()
@@ -89,7 +94,10 @@ class Game():
     def manage_mouse_clicks(self):
         left, scroll, right = pygame.mouse.get_pressed()
         if left: 
+            if self.pause:
+                pass                
             self.add_plant_to_position(self.mouse_pos[0],self.mouse_pos[1],(random.randint(0,255),random.randint(0,255),random.randint(0,255)))
+
 
     def add_plant_to_position(self,x:int,y:int,gene):
         # for plant in self.plants_list:
@@ -108,12 +116,26 @@ class Game():
         self.screen = pygame.display.set_mode(self.screen_size)
         self.x_screen_scale = self.resolution[0] / self.screen_size[0]
         self.y_screen_scale = self.resolution[1] / self.screen_size[1]
+        self.fps_cap = SCREEN_DATA["FPS_CAP"]
         pygame.display.set_caption(window_title)
         self.exit = False
         self.pause = False
         self.mouse_pos = (0,0)
         self.clock = pygame.time.Clock()
         self.pause_pos = [3,0]
+
+        ### Pause Menu Configuration
+        tbox_width = 10
+        tbox_height = 5
+        tbox_y_pos = 30
+        tbox_x_initial = 12
+        #red box, most left
+        self.textbox_list.append(TextBox(tbox_x_initial,tbox_y_pos,tbox_width,tbox_height,(255,0,0),(125,0,0)))
+        #green box, middle
+        self.textbox_list.append(TextBox(self.textbox_list[0].x+15,tbox_y_pos,tbox_width,tbox_height,(0,255,0),(0,125,0)))
+        #blue box, most right
+        self.textbox_list.append(TextBox(self.textbox_list[1].x+15,tbox_y_pos,tbox_width,tbox_height,(0,0,255),(0,0,125)))
+
         
 def main():
     A = Game()

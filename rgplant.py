@@ -71,14 +71,3 @@ class RGPlant():
             gene[index] *= 0.75
             if gene[index] < 0: gene[index] = 0
         return gene
-
-
-
-
-
-
-    
-
-
-
-
