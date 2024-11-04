@@ -32,7 +32,6 @@ class Game():
         self.mouse_pos = self.get_mouse_position()
         self.manage_mouse_clicks()
 
-
         #plants
         if not self.pause:
             if self.plants_list:
@@ -45,8 +44,23 @@ class Game():
                     self.add_plant_to_position(x,y,gene)
 
             if marked_for_death:
+                plants_list_set = set(self.plants_list)
                 for plant in marked_for_death:
-                    self.plants_list.remove(plant)
+                    plants_list_set.remove(plant)
+                self.plants_list = list(plants_list_set)
+                # marked_for_death_set = set(marked_for_death)
+                # # print(marked_for_death)
+                # # print(self.plants_list)
+                # new_plant_list = []
+                # # self.plants_list = list(filter(lambda item : item in marked_for_death_set, self.plants_list))
+                # for plant in self.plants_list:
+                #     if plant in marked_for_death_set:
+                #         marked_for_death_set.remove(plant)
+                #         continue
+                #     self.plants_list.remove(plant)
+        else:
+            for textbox in self.textbox_list:
+                textbox.update()
 
     def draw (self):
         #plants
@@ -94,10 +108,24 @@ class Game():
     def manage_mouse_clicks(self):
         left, scroll, right = pygame.mouse.get_pressed()
         if left: 
+            #Pause Menu
             if self.pause:
-                pass                
-            self.add_plant_to_position(self.mouse_pos[0],self.mouse_pos[1],(random.randint(0,255),random.randint(0,255),random.randint(0,255)))
+                for textbox in self.textbox_list:
+                    if textbox.rect.collidepoint(self.mouse_pos[0],self.mouse_pos[1]):
+                        textbox.active = True
+                        self.toogle_textboxes(textbox)
+                        break
+                    else:
+                        self.add_plant_to_position(self.mouse_pos[0],self.mouse_pos[1],(random.randint(0,255),random.randint(0,255),random.randint(0,255)))
+            #Game Loop
+            else:
+                self.add_plant_to_position(self.mouse_pos[0],self.mouse_pos[1],(random.randint(0,255),random.randint(0,255),random.randint(0,255)))
 
+    def toogle_textboxes(self,active_textbox):
+        for textbox in self.textbox_list:
+            if textbox == active_textbox: next
+            else:
+                if textbox.active: textbox.active = False
 
     def add_plant_to_position(self,x:int,y:int,gene):
         # for plant in self.plants_list:
@@ -109,7 +137,7 @@ class Game():
     def configuration_start(self, window_title):
         pygame.init()
         pygame.font.init()
-        pygame.mouse.set_visible(False)
+        # pygame.mouse.set_v    isible(False)
         self.resolution = SCREEN_DATA["RESOLUTION"]
         self.screen_size = SCREEN_DATA["SCREEN_SIZE"]
         self.canvas = pygame.Surface(self.resolution)

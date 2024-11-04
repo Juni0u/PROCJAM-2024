@@ -1,4 +1,4 @@
-import pygame,random
+import pygame,random, uuid
 from CONS import PLANTS_CONS
 WHITE = (255,255,255)
 MITOSIS_CHANCE = PLANTS_CONS["MITOSIS_CHANCE"]
@@ -7,12 +7,22 @@ MUTATION_CHANCE = PLANTS_CONS["MUTATION_CHANCE"]
 
 class RGPlant():
     def __init__(self, x:int, y:int, gene:list):
+        self.id = uuid.uuid1()
         self.x = x
         self.y = y
         self.gene = gene
         self.color = gene
         self.body = pygame.Rect(x,y,1,1)
         self.neighbor_region = pygame.Rect(self.x-1,self.y-1,3,3)
+
+    def __hash__(self):
+        return hash(self.id)
+    
+    def __eq__(self, value):
+        return (
+            (self.id)
+            == (value.id)
+        )
 
     def update(self,all_plants):
         new_plants = []

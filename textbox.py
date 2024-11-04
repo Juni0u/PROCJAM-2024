@@ -11,7 +11,8 @@ class TextBox():
         self.active = False
 
     def update(self):
-        pass
+        if self.active: self.color = self.active_color
+        else: self.color = self.inactive_color
 
     def draw(self,canvas):
         pygame.draw.rect(canvas,self.color,self.rect)
