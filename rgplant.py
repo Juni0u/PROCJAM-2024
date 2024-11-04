@@ -6,7 +6,7 @@ DEATH_CHANCE = PLANTS_CONS["DEATH_CHANCE"]
 MUTATION_CHANCE = PLANTS_CONS["MUTATION_CHANCE"]
 
 class RGPlant():
-    def __init__(self, x:int, y:int, gene:list):
+    def __init__(self, x:int, y:int, gene:list, neighbor_dict: dict):
         self.id = uuid.uuid1()
         self.x = x
         self.y = y
@@ -14,6 +14,7 @@ class RGPlant():
         self.color = gene
         self.body = pygame.Rect(x,y,1,1)
         self.neighbor_region = pygame.Rect(self.x-1,self.y-1,3,3)
+        # self.neighbors = self.get_neighbors(neighbor_dict)
 
     def __hash__(self):
         return hash(self.id)
@@ -43,6 +44,9 @@ class RGPlant():
 
     def get_neighbors(self,all_plants):
         neighbors = []
+        # for key in neighbor_dict:
+        #     if key==(self.x,self.y):
+        #         return neighbor_dict
         for plant in all_plants:
             if self.neighbor_region.colliderect(plant.body):
                 neighbors.append(plant)
