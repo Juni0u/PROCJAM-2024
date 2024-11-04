@@ -12,20 +12,20 @@ class Game():
 
     def start_game(self):
         while not self.exit:
-            for event in pygame.event.get(): 
+            events = pygame.event.get()
+            for event in events: 
                 if event.type == pygame.QUIT: 
                     self.exit=True
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.toogle_pause()
-
-
-            self.update()
+                        
+            self.update(events)
             self.before_draw()
             self.draw()
             self.update_screen()
 
-    def update (self):
+    def update (self, events):
         new_plants = []
         marked_for_death = []
         random.shuffle(self.plants_list)
@@ -48,19 +48,12 @@ class Game():
                 for plant in marked_for_death:
                     plants_list_set.remove(plant)
                 self.plants_list = list(plants_list_set)
-                # marked_for_death_set = set(marked_for_death)
-                # # print(marked_for_death)
-                # # print(self.plants_list)
-                # new_plant_list = []
-                # # self.plants_list = list(filter(lambda item : item in marked_for_death_set, self.plants_list))
-                # for plant in self.plants_list:
-                #     if plant in marked_for_death_set:
-                #         marked_for_death_set.remove(plant)
-                #         continue
-                #     self.plants_list.remove(plant)
         else:
             for textbox in self.textbox_list:
-                textbox.update()
+                textbox.update(events)
+            self.new_gene = (int(self.textbox_list[0].color_choice),
+                             int(self.textbox_list[1].color_choice),
+                             int(self.textbox_list[2].color_choice))            
 
     def draw (self):
         #plants
@@ -85,7 +78,7 @@ class Game():
 
     def update_screen(self):
         #draw mouse
-        self.canvas.set_at((self.mouse_pos[0],self.mouse_pos[1]), (255,0,255))
+        self.canvas.set_at((self.mouse_pos[0],self.mouse_pos[1]), self.new_gene)
         scaled_canvas = pygame.transform.scale(self.canvas, self.screen_size)
         self.screen.blit(scaled_canvas, (0, 0))  # Draw scaled canvas on the screen
         pygame.display.update() 
@@ -116,10 +109,10 @@ class Game():
                         self.toogle_textboxes(textbox)
                         break
                     else:
-                        self.add_plant_to_position(self.mouse_pos[0],self.mouse_pos[1],(random.randint(0,255),random.randint(0,255),random.randint(0,255)))
+                        self.add_plant_to_position(self.mouse_pos[0],self.mouse_pos[1],self.new_gene)
             #Game Loop
             else:
-                self.add_plant_to_position(self.mouse_pos[0],self.mouse_pos[1],(random.randint(0,255),random.randint(0,255),random.randint(0,255)))
+                self.add_plant_to_position(self.mouse_pos[0],self.mouse_pos[1],self.new_gene)
 
     def toogle_textboxes(self,active_textbox):
         for textbox in self.textbox_list:
@@ -128,16 +121,18 @@ class Game():
                 if textbox.active: textbox.active = False
 
     def add_plant_to_position(self,x:int,y:int,gene):
-        # for plant in self.plants_list:
-        #     if (plant.x==x) and (plant.y==y):
-        #         self.plants_list.remove(plant)
-        #         break
+        plants_list_set = set(self.plants_list)
+        for plant in self.plants_list:
+            if (plant.x==x) and (plant.y==y):
+                self.plants_list.remove(plant)
+                break
+        self.plants_list = list(plants_list_set)
         self.plants_list.append(RGPlant(x,y,gene))
 
     def configuration_start(self, window_title):
         pygame.init()
         pygame.font.init()
-        # pygame.mouse.set_v    isible(False)
+        pygame.mouse.set_visible(False)
         self.resolution = SCREEN_DATA["RESOLUTION"]
         self.screen_size = SCREEN_DATA["SCREEN_SIZE"]
         self.canvas = pygame.Surface(self.resolution)
@@ -151,20 +146,23 @@ class Game():
         self.mouse_pos = (0,0)
         self.clock = pygame.time.Clock()
         self.pause_pos = [3,0]
+        self.new_gene = (255,255,255)
 
         ### Pause Menu Configuration
-        tbox_width = 10
-        tbox_height = 5
+        tbox_width = 19
+        tbox_height = 10
         tbox_y_pos = 30
-        tbox_x_initial = 12
-        #red box, most left
+        tbox_x_initial = 2 
+        tbox_x_interval = 20
+        #red box, most left 
         self.textbox_list.append(TextBox(tbox_x_initial,tbox_y_pos,tbox_width,tbox_height,(255,0,0),(125,0,0)))
         #green box, middle
-        self.textbox_list.append(TextBox(self.textbox_list[0].x+15,tbox_y_pos,tbox_width,tbox_height,(0,255,0),(0,125,0)))
+        self.textbox_list.append(TextBox(self.textbox_list[0].x+tbox_x_interval,tbox_y_pos,tbox_width,tbox_height,(0,255,0),(0,125,0)))
         #blue box, most right
-        self.textbox_list.append(TextBox(self.textbox_list[1].x+15,tbox_y_pos,tbox_width,tbox_height,(0,0,255),(0,0,125)))
+        self.textbox_list.append(TextBox(self.textbox_list[1].x+tbox_x_interval,tbox_y_pos,tbox_width,tbox_height,(0,0,255),(0,0,125)))
+        #randombox, botton middle
+        self.textbox_list.append(TextBox(self.textbox_list[0].x+tbox_x_interval,tbox_y_pos+tbox_height+2,tbox_width,tbox_height,(0,255,0),(255,0,0)))
 
-        
 def main():
     A = Game()
     A.start_game()
